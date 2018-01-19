@@ -12,7 +12,7 @@ def role_arn_to_session(**args):
             RoleSessionName='ExampleSessionName')
         client = session.client('sqs')
     """
-    client = boto3.client('sts')
+    client = boto3.Session(profile_name='cc').client('sts')
     response = client.assume_role(**args)
     return boto3.Session(
         aws_access_key_id=response['Credentials']['AccessKeyId'],
@@ -29,32 +29,31 @@ def getopts(argv):
     return opts
 
 
-def savefile(file, content):
-    with open(file, "w") as text_file:
-        text_file.write(str(content))
+def readfile(file):
+    file = open(file,"r")
+    content = str(file.read())
+    file.close()
+    return content
 
-
-def kmsencrypt(token, plain_text):
-    key_id = 'alias/cc'
+def kmsdecrypt(token, file_name):
     session = role_arn_to_session(
         RoleArn='arn:aws:iam::764112847618:role/cc',
         RoleSessionName='cc',
         SerialNumber='arn:aws:iam::764112847618:mfa/cc',
         TokenCode=token)
+    encrypted_string = readfile(file_name)
+    binary_data = base64.b64decode(encrypted_string)
     kms = session.client('kms')
-    stuff = kms.encrypt(KeyId=key_id, Plaintext=plain_text)
-    binary_encrypted = stuff[u'CiphertextBlob']
-    encrypted_string = base64.b64encode(binary_encrypted)
-    print("Ciphertext Blob:\n") + encrypted_string.decode()
-    savefile("encrypted.txt", encrypted_string.decode())
-
+    meta = kms.decrypt(CiphertextBlob=binary_data)
+    plaintext = meta[u'Plaintext']
+    print("Plaintext content: \n" + plaintext.decode())
 
 if __name__ == '__main__':
     from sys import argv
     myargs = getopts(argv)
-    if '--token' in myargs and '--plaintext' in myargs:  # Example usage.
+    if '--token' in myargs and '--file' in myargs:  # Example usage.
         token = myargs['--token']
-        plain_text = myargs['--plaintext']
-        kmsencrypt(token, plain_text)
+        file_name = myargs['--file']
+        kmsdecrypt(token, file_name)
     else:
-        print "error: the following arguments are required: --token, --plaintext"
+        print "error: the following arguments are required: --token, --file"
