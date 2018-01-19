@@ -1,5 +1,1 @@
-{::nomarkdown}
-
-<a href="https://asciinema.org/a/YckEnQMtzUBbb5auGJ50cESuB" target="_blank"><img src="https://asciinema.org/a/YckEnQMtzUBbb5auGJ50cESuB.png" /></a>
-
-{:/}
+An ordinary CLI tool that uses an IAM user to assume a Role using MFA to interact with KMS to encrypt and decrypt blobs. All ephemeral, volatile and stateless. You lost the file, you lost the content, but we have backups for that ;)
