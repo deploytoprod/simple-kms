@@ -39,7 +39,7 @@ def savefile(file, content):
         text_file.write(str(content))
 
 
-def kmsencrypt(token, plain_text):
+def kmsencrypt(token, plaintext, filename):
     key_id = 'alias/cc'
     session = role_arn_to_session(
         RoleArn='arn:aws:iam::764112847618:role/cc',
@@ -47,19 +47,24 @@ def kmsencrypt(token, plain_text):
         SerialNumber='arn:aws:iam::764112847618:mfa/cc',
         TokenCode=token)
     kms = session.client('kms')
-    stuff = kms.encrypt(KeyId=key_id, Plaintext=plain_text)
+    stuff = kms.encrypt(KeyId=key_id, Plaintext=plaintext)
     binary_encrypted = stuff[u'CiphertextBlob']
     encrypted_string = base64.b64encode(binary_encrypted)
     print("Ciphertext Blob:\n") + encrypted_string.decode()
-    savefile("encrypted.txt", encrypted_string.decode())
+    savefile(filename, encrypted_string.decode())
 
 
 if __name__ == '__main__':
     from sys import argv
     myargs = getopts(argv)
-    if '--token' in myargs and '--plaintext' in myargs:  # Example usage.
-        token = myargs['--token']
-        plain_text = myargs['--plaintext']
-        kmsencrypt(token, plain_text)
-    else:
-        print "error: the following arguments are required: --token, --plaintext"
+    option = raw_input("What do you want to encrypt?\n1 - single string\n2 - website credentials\n")
+    if option == '1':
+        plaintext = raw_input("Specify the string: ")
+    elif option == '2':
+        plaintext={}
+        plaintext['label'] = raw_input("label: ")
+        plaintext['login'] = raw_input("login: ")
+        plaintext['password'] = raw_input("password: ")
+    filename = raw_input("File name: ")
+    token = raw_input("MFA code: ")
+    kmsencrypt(token, str(plaintext), filename)
