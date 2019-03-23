@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/local/bin/python3
 
 import boto3
 import botocore.session
@@ -56,4 +56,4 @@ if __name__ == '__main__':
         file_name = myargs['--file']
         kmsdecrypt(token, file_name)
     else:
-        print "error: the following arguments are required: --token, --file"
+        print ("error: the following arguments are required: --token, --file")

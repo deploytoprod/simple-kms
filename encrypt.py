@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/local/bin/python3
 
 import boto3
 import botocore.session
@@ -50,21 +50,21 @@ def kmsencrypt(token, plaintext, filename):
     stuff = kms.encrypt(KeyId=key_id, Plaintext=plaintext)
     binary_encrypted = stuff[u'CiphertextBlob']
     encrypted_string = base64.b64encode(binary_encrypted)
-    print("Ciphertext Blob:\n") + encrypted_string.decode()
+    print("Ciphertext Blob:\n" + encrypted_string.decode())
     savefile(filename, encrypted_string.decode())
 
 
 if __name__ == '__main__':
     from sys import argv
     myargs = getopts(argv)
-    option = raw_input("What do you want to encrypt?\n1 - single string\n2 - website credentials\n")
+    option = input("What do you want to encrypt?\n1 - single string\n2 - website credentials\n")
     if option == '1':
-        plaintext = raw_input("Specify the string: ")
+        plaintext = input("Specify the string: ")
     elif option == '2':
         plaintext={}
-        plaintext['label'] = raw_input("label: ")
-        plaintext['login'] = raw_input("login: ")
-        plaintext['password'] = raw_input("password: ")
-    filename = raw_input("File name: ")
-    token = raw_input("MFA code: ")
+        plaintext['label'] = input("label: ")
+        plaintext['login'] = input("login: ")
+        plaintext['password'] = input("password: ")
+    filename = input("File name: ")
+    token = input("MFA code: ")
     kmsencrypt(token, str(plaintext), filename)
